@@ -1,12 +1,13 @@
 import { Dialog, DialogContent, IconButton, Typography } from '@mui/material';
 import { useState, type FunctionComponent } from 'react';
-import { IGraduate, IDegree } from '@/api/graduate/types';
+import { IGraduate, IDegree, IProfilePicture } from '@/api/graduate/types';
 import { DegreeList, InfoRow, TitleContainer } from './styles';
 import { degreeMap, helpMap, majorMap, statusMap } from '@/map';
 import EditIcon from '@mui/icons-material/Edit';
 import UpdateGraduateDialog from '../UpdateGraduateDialog';
 import { CheckCircle, Cancel } from '@mui/icons-material';
 import { useGraduateStore } from '@/stores/graduateStore';
+import FileApi from '@/api/file';
 
 interface GraduateDialogProps {
   graduate: IGraduate;
@@ -20,10 +21,23 @@ const GraduateInfoDialog: FunctionComponent<GraduateDialogProps> = ({
   onClose,
 }) => {
   const [dialogOpen, setDialogOpen] = useState(false);
-  const { applyGraduate, rejectGraduate } = useGraduateStore();
- 
+  const [profilePicture, setProfilePicture] = useState<IProfilePicture | null>(graduate.profilePicture);
+  const { applyGraduate, rejectGraduate, updateGraduate } = useGraduateStore();
+
   const handleOpenDialog = () => setDialogOpen(true);
   const handleCloseDialog = () => setDialogOpen(false);
+
+  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const res = await FileApi.uploadProfilePicture(file);
+      
+      if (res) {
+        setProfilePicture(res);
+        updateGraduate(graduate.id, { profilePictureId: res.id });
+      }
+    }
+  };
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
@@ -61,6 +75,31 @@ const GraduateInfoDialog: FunctionComponent<GraduateDialogProps> = ({
         )}
       </TitleContainer>
       <DialogContent sx={{ padding: '5px 20px 20px 20px' }}>
+        <InfoRow>
+          {profilePicture ? (
+            <><img
+              src={import.meta.env.VITE_SERVER_BASEPATH +
+                profilePicture.src}
+              alt="profile"
+              style={{ height: '100px' }} /><input
+                type="file"
+                id="profilePicture"
+                accept="image/*"
+                className="border p-2"
+                onChange={handleFileChange} /></>
+          ) : (
+            <>
+              <p>Фото не вказано</p>
+              <input
+                type="file"
+                id="profilePicture"
+                accept="image/*"
+                className="border p-2"
+                onChange={handleFileChange}
+              />
+            </>
+          )}
+        </InfoRow>
         <InfoRow>
           <p>Email:</p>
           <span>{graduate.email}</span>

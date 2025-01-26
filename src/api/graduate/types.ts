@@ -18,4 +18,10 @@ export interface IGraduate {
   job: string;
   departamentHelping: 'lessons' | 'financial' | 'accreditation' | 'nothing';
   degree: IDegree[];
+  profilePicture: IProfilePicture | null; 
+}
+
+export interface IProfilePicture {
+  id: number;
+  src: string;
 }

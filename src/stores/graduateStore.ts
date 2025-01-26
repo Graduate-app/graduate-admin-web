@@ -7,7 +7,7 @@ interface IGraduateState {
   loading: boolean;
   error: unknown | null;
   fetchGraduates: () => Promise<void>;
-  updateGraduate: (id: number, data: Partial<IGraduate>) => void;
+  updateGraduate: (id: number, data: Partial<IGraduate> & { profilePictureId?: number }) => void;
   applyGraduate: (id: number) => void;
   rejectGraduate: (id: number) => void;
   createGraduate: (data: Partial<IGraduate>) => void;
